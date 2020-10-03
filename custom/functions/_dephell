@@ -1,0 +1,1927 @@
+_dephell()
+{
+  local first second current double commands
+  COMPREPLY=()
+  first="${words[2]}"
+  second="${words[3]}"
+  double="${words[2]} ${words[3]}"
+  current="${words[CURRENT]}"
+  # autocomplete command first word
+  if [[ $CURRENT == 2 ]] ; then
+    commands=(
+        'project'
+        'self'
+        'docker'
+        'vendor'
+        'venv'
+        'package'
+        'generate'
+        'deps'
+        'inspect'
+        'jail'
+    )
+    _describe 'command' commands
+    return 0
+  fi
+  # autocomplete command second word
+  if [[ $CURRENT == 3 ]] ; then
+    case "${first}" in
+        deps)
+          commands=(
+              'add:Add new packages into project dependencies.'
+              'convert:Convert dependencies between formats.'
+              'outdated:Show outdated project dependencies.'
+              'install:Install project dependencies.'
+              'check:Show difference between venv and project dependencies.'
+              'audit:Show known vulnerabilities for project dependencies.'
+              'licenses:Show licenses for all project dependencies.'
+              'sync:Install project dependencies with removing all other packages from venv.'
+              'tree:Show dependencies tree.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        docker)
+          commands=(
+              'stop:Stop docker container.'
+              'shell:Run shell inside of docker container.'
+              'run:Run command inside of docker container.'
+              'prepare:Make docker container nice.'
+              'destroy:Remove docker container for current project.'
+              'tags:Show available tags for image.'
+              'create:Create docker container for current project.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        generate)
+          commands=(
+              'config:Create config file for DepHell.'
+              'license:Create LICENSE file.'
+              'travis:Create .travis.yml for DepHell-based project.'
+              'authors:Create AUTHORS file for project by git log.'
+              'editorconfig:Create EditorConfig for project.'
+              'contributing:Create CONTRIBUTING.md for DepHell-based project.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        inspect)
+          commands=(
+              'venv:Show virtual environment information for current project.'
+              'project:Inspect the current project.'
+              'config:Show current config.'
+              'self:Show information about DepHell installation.'
+              'versioning:Inspect the versioning rules of the project.'
+              'auth:Show saved credentials.'
+              'gadget:Show Inspector Gadget.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        jail)
+          commands=(
+              'install:Download and install package into isolated environment.'
+              'show:Show info about the package isolated environment.'
+              'list:Show all jails and their entrypoints.'
+              'try:Try packages into temporary isolated environment.'
+              'remove:Remove package isolated environment.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        package)
+          commands=(
+              'downloads:Show downloads statistic for package from PyPI.org.'
+              'list:Show all installed packages.'
+              'install:Download and install package into project environment.'
+              'search:Search packages on PyPI.org or Anaconda Cloud.'
+              'bug:Report bug in a package.'
+              'show:Show information about package from PyPI.org.'
+              'verify:Verify GPG signature for a release from PyPI.org.'
+              'remove:Remove installed packages.'
+              'changelog:Find project changelog.'
+              'releases:Show package releases.'
+              'purge:Remove given packages and their dependencies.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        project)
+          commands=(
+              'register:Register a project in the system or in a venv.'
+              'upload:Upload project dist archives on pypi.org (or somewhere else).'
+              'test:Test project build in temporary venvs.'
+              'validate:Check package metadata.'
+              'build:Create dist archives for project.'
+              'bump:Bump project version.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        self)
+          commands=(
+              'autocomplete:Enable DepHell commands autocomplete for current shell.'
+              'uncache:Remove dephell cache.'
+              'auth:Insert, update or delete credentials.'
+              'upgrade:Upgrade DepHell to the latest version.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        vendor)
+          commands=(
+              'download:Download and extract project dependencies.'
+              'import:Patch all imports in project to use vendored dependencies.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+        venv)
+          commands=(
+              'destroy:Destroy virtual environment for current project.'
+              'shell:Activate virtual environment for current project.'
+              'run:Run command in the project virtual environment'
+              'entrypoint:Create binary to run a command in the venv.'
+              'create:Create virtual environment for current project.'
+          )
+          _describe 'command' commands
+          return 0
+          ;;
+      *)
+      ;;
+    esac
+  fi
+  _autocomplete_command () {
+    case "$1" in
+        "deps add")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "deps audit")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "deps check")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "deps convert")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--to=[path or format for writing requirements.]:to:_files' \
+                  '--to-format=[output requirements file format.]:to_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--to-path=[path to output file.]:to_path:_files' \
+                  '--sdist-ratio[ratio of tests and project size after which tests will be excluded from sdist.]' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "deps install")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "deps licenses")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "deps outdated")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "deps sync")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--to=[path or format for writing requirements.]:to:_files' \
+                  '--to-format=[output requirements file format.]:to_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--to-path=[path to output file.]:to_path:_files' \
+                  '--sdist-ratio[ratio of tests and project size after which tests will be excluded from sdist.]' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "deps tree")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  '--type=[format for tree output.]:type:(pretty json graph)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "docker create")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--docker-repo[image name without tag]' \
+                  '--docker-tag[image tag]' \
+                  '--docker-container[container name]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "docker destroy")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--docker-repo[image name without tag]' \
+                  '--docker-tag[image tag]' \
+                  '--docker-container[container name]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "docker prepare")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--docker-repo[image name without tag]' \
+                  '--docker-tag[image tag]' \
+                  '--docker-container[container name]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "docker run")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--docker-repo[image name without tag]' \
+                  '--docker-tag[image tag]' \
+                  '--docker-container[container name]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "docker shell")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--docker-repo[image name without tag]' \
+                  '--docker-tag[image tag]' \
+                  '--docker-container[container name]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "docker stop")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--docker-repo[image name without tag]' \
+                  '--docker-tag[image tag]' \
+                  '--docker-container[container name]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "docker tags")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--docker-repo[image name without tag]' \
+                  '--docker-tag[image tag]' \
+                  '--docker-container[container name]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "generate authors")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "generate config")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "generate contributing")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "generate editorconfig")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "generate license")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  '--owner[name of the owner]' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "generate travis")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "inspect auth")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                ;
+          return 0
+          ;;
+        "inspect config")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--to=[path or format for writing requirements.]:to:_files' \
+                  '--to-format=[output requirements file format.]:to_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--to-path=[path to output file.]:to_path:_files' \
+                  '--sdist-ratio[ratio of tests and project size after which tests will be excluded from sdist.]' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "inspect gadget")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                ;
+          return 0
+          ;;
+        "inspect project")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "inspect self")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "inspect venv")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "inspect versioning")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "jail install")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "jail list")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "jail remove")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "jail show")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "jail try")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  '--command[command to execute.]' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package bug")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package changelog")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package downloads")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package install")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package list")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "package purge")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package releases")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package remove")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package search")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package show")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "package verify")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "project build")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "project bump")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  '--tag[create git tag]' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "project register")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "project test")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "project upload")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--upload-sign[sign packages with GPG]' \
+                  '--upload-identity[use name as the key to sign with]' \
+                  '--upload-url[use name as the key to sign with]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "project validate")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "self auth")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  ':hostname:' \
+                ;
+          return 0
+          ;;
+        "self autocomplete")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                ;
+          return 0
+          ;;
+        "self uncache")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "self upgrade")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "vendor download")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "vendor import")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--strategy=[Algorithm to select best release.]:strategy:(min max)' \
+                  '--prereleases[Allow prereleases]' \
+                  '--mutations[Maximum mutations limit]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "venv create")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "venv destroy")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+        "venv entrypoint")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  '--command[command to run]' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "venv run")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--warehouse[warehouse API URL.]' \
+                  '--bitbucket[bitbucket API URL.]' \
+                  '--repo=[force repository for first-level deps.]:repo:(pypi conda conda_git conda_cloud)' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                  ':name:' \
+                ;
+          return 0
+          ;;
+        "venv shell")
+          _arguments -s -S ':cmd1:' ':cmd2:' \
+                  '--help[show this help message and exit]' \
+                  '--config=[path to config file.]:config:_files' \
+                  '--env[environment in config.]' \
+                  '--from=[path or format for reading requirements.]:from:_files' \
+                  '--from-format=[format for reading requirements.]:from_format:(conda egginfo flit imports installed pip pipfile pipfilelock piplock poetry poetrylock pyproject sdist setuppy wheel)' \
+                  '--from-path=[path to input file.]:from_path:_files' \
+                  '--venv=[path to venv directory for project.]:venv:_files' \
+                  '--python[python version for venv.]' \
+                  '--dotenv[path to .env file]' \
+                  '--format=[output format.]:format:(short full)' \
+                  '--level=[minimal level for log messages.]:level:(DEBUG INFO WARNING ERROR EXCEPTION)' \
+                  '--nocolors[do not color output.]' \
+                  '--table[use table for output.]' \
+                  '--silent[suppress any output except errors.]' \
+                  '--filter[filter for JSON output.]' \
+                  '--traceback[show traceback for exceptions.]' \
+                  '--pdb[run pdb for critical exceptions.]' \
+                  '--cache-path=[path to dephell cache]:cache_path:_files' \
+                  '--cache-ttl[Time to live for releases list cache]' \
+                  '--project=[path to the current project]:project:_files' \
+                  '--bin=[path to the dir for installing scripts]:bin:_files' \
+                  '--ca[path to CA_BUNDLE file for SSL verification.]' \
+                  '--envs[environments (main, dev) or extras to install]' \
+                  '--tests[paths to test files]' \
+                  '--versioning=[versioning scheme for project]:versioning:(calver comver pep roman romver semver serial zerover)' \
+                ;
+          return 0
+          ;;
+      *)
+      ;;
+    esac
+  }
+  # autocomplete one-word command arguments
+  _autocomplete_command "$first"
+  # autocomplete two-words command arguments
+  _autocomplete_command "$double"
+}
+compdef _dephell dephell
